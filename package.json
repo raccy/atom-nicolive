@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "description": "ニコ生ビュワー for Atom",
   "activationCommands": {
-    "atom-workspace": "nicolive:toggle"
+    "atom-workspace": "nicolive:show"
   },
   "repository": "https://github.com/raccy/nicolive",
   "license": "MIT",

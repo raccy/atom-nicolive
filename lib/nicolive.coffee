@@ -1,33 +1,43 @@
-NicoliveView = require './nicolive-view'
+# NicoliveView = require './nicolive-view'
 {CompositeDisposable} = require 'atom'
+NiconicoView = require './niconico-view'
 
 module.exports = Nicolive =
-  nicoliveView: null
-  modalPanel: null
+  niconicoView: null
+  # nicoliveView: null
+  # modalPanel: null
   subscriptions: null
 
   activate: (state) ->
-    @nicoliveView = new NicoliveView(state.nicoliveViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @nicoliveView.getElement(), visible: false)
-
+    @niconicoView = new NiconicoView()
+    # @nicoliveView = new NicoliveView(state.nicoliveViewState)
+    # @modalPanel = atom.workspace.addModalPanel(item: @nicoliveView.getElement(), visible: false)
+    #
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'nicolive:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'nicolive:show': => @show()
+
+  show: ->
+    console.log "ニコ生のボタンを押したな！"
+    atom.workspace.getActivePane().splitRight().addItem @niconicoView
+    # @niconicoView.render()
+    @niconicoView.login()
 
   deactivate: ->
-    @modalPanel.destroy()
-    @subscriptions.dispose()
-    @nicoliveView.destroy()
+    # @modalPanel.destroy()
+    # @subscriptions.dispose()
+    # @nicoliveView.destroy()
+    @niconicoView.destroy()
 
   serialize: ->
-    nicoliveViewState: @nicoliveView.serialize()
+    # nicoliveViewState: @nicoliveView.serialize()
 
-  toggle: ->
-    console.log 'Nicolive was toggled!'
-
-    if @modalPanel.isVisible()
-      @modalPanel.hide()
-    else
-      @modalPanel.show()
+  # toggle: ->
+  #   console.log 'Nicolive was toggled!'
+  #
+  #   if @modalPanel.isVisible()
+  #     @modalPanel.hide()
+  #   else
+  #     @modalPanel.show()

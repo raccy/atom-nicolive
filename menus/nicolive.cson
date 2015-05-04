@@ -2,19 +2,19 @@
 'context-menu':
   'atom-text-editor': [
     {
-      'label': 'Toggle nicolive'
-      'command': 'nicolive:toggle'
+      'label': 'ニコ生'
+      'command': 'nicolive:show'
     }
   ]
 'menu': [
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'nicolive'
+      'label': 'ニコ生'
       'submenu': [
         {
-          'label': 'Toggle'
-          'command': 'nicolive:toggle'
+          'label': '閲覧'
+          'command': 'nicolive:show'
         }
       ]
     ]
