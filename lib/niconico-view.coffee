@@ -1,4 +1,6 @@
 # {View} = require 'atom'
+# {$, $$$, ScrollView} = require 'atom-space-pen-views'
+# {$, $$$, ScrollView} = require 'atom-space-pen-views'
 {$, $$$, ScrollView} = require 'atom'
 module.exports =
 class NiconicoView extends ScrollView
@@ -25,15 +27,14 @@ class NiconicoView extends ScrollView
 
   # ニコニコ動画にログイン
   login: ->
-    console.log $$$
     @html $$$ ->
-      console.log @
       @h2 'ニコ生にログインしてね！'
-      # @frame =>
-      #   # @label 'ログイン'
-      #   @input type: 'text'
-      #   # @label 'パスワード'
-      #   @input type: 'password'
+      @p 'ほげほげ'
+      @form =>
+        @label 'ログイン'
+        @input type: 'text'
+        @label 'パスワード'
+        @input type: 'password'
 
   getTitle: ->
     "ニコニコ動画"

@@ -3,7 +3,7 @@
   'atom-text-editor': [
     {
       'label': 'ニコ生'
-      'command': 'nicolive:show'
+      'command': 'niconico:show'
     }
   ]
 'menu': [
@@ -14,7 +14,7 @@
       'submenu': [
         {
           'label': '閲覧'
-          'command': 'nicolive:show'
+          'command': 'niconico:show'
         }
       ]
     ]

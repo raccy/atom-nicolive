@@ -1,4 +1,3 @@
-# NicoliveView = require './nicolive-view'
 {CompositeDisposable} = require 'atom'
 NiconicoView = require './niconico-view'
 
@@ -17,7 +16,7 @@ module.exports = Nicolive =
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'nicolive:show': => @show()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'niconico:show': => @show()
 
   show: ->
     console.log "ニコ生のボタンを押したな！"
