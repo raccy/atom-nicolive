@@ -1,5 +1,15 @@
-# nicolive package
+# ニコ生パッケージ for Atom
 
-A short description of your package.
+Atomでコーディング中もニコ生の放送が閲覧可能に！
+コメントだって、読み放題かつ書き放題。
+もう、Atomさえあれば何もいらない。
 
-![A screenshot of your package](https://f.cloud.github.com/assets/69169/2290250/c35d867a-a017-11e3-86be-cd7c5bf3ff9b.gif)
+という、誰得パッケージです。
+
+当面の目標
+
+* [ ] とりあえずログインできるようにする。
+* 放送を流す。
+    rtmpdump-nico-live | VLC | (TCP/IP) | Atom (chromium)
+* コメントを閲覧する。
+* コメントを書き込む。

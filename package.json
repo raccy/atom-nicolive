@@ -2,11 +2,11 @@
   "name": "nicolive",
   "main": "./lib/nicolive",
   "version": "0.0.0",
-  "description": "A short description of your package",
+  "description": "ニコ生ビュワー for Atom",
   "activationCommands": {
     "atom-workspace": "nicolive:toggle"
   },
-  "repository": "https://github.com/atom/nicolive",
+  "repository": "https://github.com/raccy/nicolive",
   "license": "MIT",
   "engines": {
     "atom": ">=0.174.0 <2.0.0"
