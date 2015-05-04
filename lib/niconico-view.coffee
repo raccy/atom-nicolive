@@ -19,15 +19,21 @@ class NiconicoView extends ScrollView
 
   # Returns an object that can be retrieved when package is activated
   # serialize: ->
-
   # Tear down any state and detach
   destroy: ->
     # @element.remove()
 
   # ニコニコ動画にログイン
   login: ->
-
-
+    console.log $$$
+    @html $$$ ->
+      console.log @
+      @h2 'ニコ生にログインしてね！'
+      # @frame =>
+      #   # @label 'ログイン'
+      #   @input type: 'text'
+      #   # @label 'パスワード'
+      #   @input type: 'password'
 
   getTitle: ->
     "ニコニコ動画"
