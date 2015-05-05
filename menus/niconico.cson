@@ -2,7 +2,7 @@
 'context-menu':
   'atom-text-editor': [
     {
-      'label': 'ニコ生'
+      'label': 'ニコニコ動画'
       'command': 'niconico:show'
     }
   ]
@@ -10,10 +10,10 @@
   {
     'label': 'Packages'
     'submenu': [
-      'label': 'ニコ生'
+      'label': 'ニコニコ動画'
       'submenu': [
         {
-          'label': '閲覧'
+          'label': '表示'
           'command': 'niconico:show'
         }
       ]
