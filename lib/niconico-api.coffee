@@ -32,16 +32,14 @@ class NiconicoApi
       mail_tel: username,
       password: password,
     }
-    @request.post NiconicoApi.URI.login,
-      {followRedirect: false, form: formData},
-      (err, response,body) ->
-        if !err and response.statusCode == 302
-          if response.headers?.location? == 'http://www.nicovideo.jp/'
-            callback(true, null)
-          else
-            callback(false, 'メールアドレスまたはパスワードが間違っています。')
+    @request.post NiconicoApi.URI.login, {followRedirect: false, form: formData}, (err, response,body) ->
+      if !err and response.statusCode == 302
+        if response.headers?.location? == 'http://www.nicovideo.jp/'
+          callback(true, null)
         else
-          callback(false, err? || '不明なレスポンスが返されました。')
+          callback(false, 'メールアドレスまたはパスワードが間違っています。')
+      else
+        callback(false, err? || '不明なレスポンスが返されました。')
 
   # ログアウトする。
   logout: ->
