@@ -112,7 +112,7 @@ class NiconicoView extends ScrollView
 
   # クリックイベント
   clickLogin: (event, element) ->
-    @clearAlert
+    @clearAlert()
     unless @loginMail.val()
       @showAlert 'メールアドレスを入力して下さい。'
       return
@@ -140,6 +140,7 @@ class NiconicoView extends ScrollView
       @showLogin()
 
   clickQuickPlay: (event, element) ->
+    @clearAlert()
     movieId = @quickMovie.val()
     console.log "#{movieId} を再生します。"
     if !movieId

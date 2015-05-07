@@ -11,3 +11,5 @@
   'ctrl-cmd-n': 'niconico:show'
 '.niconico-view form':
   'tab': 'native!'
+  'cmd-v': 'native!'
+  'cmd-c': 'native!'

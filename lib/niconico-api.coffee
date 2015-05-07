@@ -69,9 +69,6 @@ class NiconicoApi
           data.userName = myTop('.profile h2').contents().text().
               replace(/さんの$/, '')
           data.userId = myTop('.accountNumber span').text()
-          #       <div class="profile">
-          # <h2>らっしー<small>さんの</small></h2>
-          # <p class="accountNumber">ID:<span>48298698(GINZA) 一般会員</span>
         callback(null, data)
       else
         callback(err, null)
@@ -87,4 +84,25 @@ class NiconicoApi
         callback(err, null)
       else
         liveStatus = cheerio.load(body)
-        callback(null, liveStatus)
+        if liveStatus('getplayerstatus').attr('status') == 'ok'
+          data = {}
+          data.stream = {}
+          data.stream.id = liveStatus('stream id').text()
+          data.stream.title = liveStatus('stream title').text()
+          data.stream.description = liveStatus('stream description').text()
+          data.stream.owner_id = liveStatus('stream owner_id').text()
+          data.stream.owner_name = liveStatus('stream owner_name').text()
+          data.stream.thumb_url = liveStatus('stream thumb_url').text()
+          # コメントサーバの情報
+          data.comment = {}
+          data.comment.addr = liveStatus('ms addr').text()
+          data.comment.port = liveStatus('ms port').text()
+          data.comment.thread = liveStatus('ms thread').text()
+          # RTMPサーバの情報
+          data.rtmp = {}
+          data.rtmp.url = liveStatus('rtmp url').text()
+          data.rtmp.ticket = liveStatus('rtmp ticket').text()
+          data.rtmp.contents = liveStatus('contents#main').text().replace(/^rtmp:rtmp:\/\//, 'rtmp://')
+          callback(err, data)
+        else
+          callback(liveStatus('error code').text(), liveStatus)
