@@ -14,7 +14,6 @@ module.exports = Nicolive =
       default: path.join process.env.ATOM_HOME, 'niconico-cookie.json'
 
   activate: (state) ->
-    console.log atom.config.get('niconico.cookieStoreFile')
     @niconicoView = new NiconicoView(
         atom.config.get('niconico.cookieStoreFile'))
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable

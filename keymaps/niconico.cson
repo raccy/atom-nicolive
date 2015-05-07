@@ -9,3 +9,5 @@
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-workspace':
   'ctrl-cmd-n': 'niconico:show'
+'.niconico-view form':
+  'tab': 'native!'
