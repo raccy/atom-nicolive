@@ -18,6 +18,7 @@ class NiconicoApi
     }
     live: {
       status: 'http://live.nicovideo.jp/api/getplayerstatus/{id}'
+      heartbeat: 'http://live.nicovideo.jp/api/heartbeat?v={id}'
     }
   }
 
@@ -35,6 +36,7 @@ class NiconicoApi
         'User-Agent': 'Niconico for Atom 0.0.0 / https://github.com/raccy/niconico'
       }
     }
+    @liveHeartbeat = null
 
   # ログインする。
   # ログインした情報をcallbackになげる。
@@ -79,7 +81,7 @@ class NiconicoApi
   # 生放送番組の情報を取得する
   getLiveStatus: (lv, callback) ->
     url = NiconicoApi.URI.live.status.slice(0).replace('{id}', lv)
-    @request.get url, (err, response, body) ->
+    @request.get url, (err, response, body) =>
       if err
         callback(err, null)
       else
@@ -103,6 +105,38 @@ class NiconicoApi
           data.rtmp.url = liveStatus('rtmp url').text()
           data.rtmp.ticket = liveStatus('rtmp ticket').text()
           data.rtmp.contents = liveStatus('contents#main').text().replace(/^rtmp:rtmp:\/\//, 'rtmp://')
+          @startLiveHeartbeat(data.stream.id)
           callback(err, data)
         else
           callback(liveStatus('error code').text(), liveStatus)
+
+  getLiveHeratbeat: (lv, callback) ->
+    url = NiconicoApi.URI.live.heartbeat.slice(0).replace('{id}', lv)
+    @request.get url, (err, response, body) ->
+      if err
+        callback(err, null)
+      else
+        heartBeat = cheerio.load(body)
+        if heartBeat('heartbeat').attr('status') == 'ok'
+          data = {}
+          data.ticket = heartBeat('ticket').text()
+          data.watchCount = heartBeat('watchCount').text()
+          data.commentCount = heartBeat('commentCount').text()
+          data.waitTime = heartBeat('waitTime').text()
+          callback(null, data)
+        else
+          callback(heartBeat('error code'), null)
+
+  startLiveHeartbeat: (lv) ->
+    if lv
+      @liveHeartbeat = lv
+      @getLiveHeratbeat @liveHeartbeat, (err, data) =>
+        console.log 'ハートビートが叩かれたっす'
+        console.log data
+        if !err
+          setTimeout =>
+            @startLiveHeartbeat(@liveHeartbeat)
+          , 60 * 1000
+
+  stopLiveHeartbeat: ->
+    @liveHeartbeat = null

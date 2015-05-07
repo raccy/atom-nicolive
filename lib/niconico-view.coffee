@@ -155,3 +155,25 @@ class NiconicoView extends ScrollView
           console.log data
     else
       @showAlert '未実装です。'
+
+  playMovie: (movieData) ->
+###
+contents:
+
+  "rtmp://nlpoca154.live.nicovideo.jp:1935/publicorigin/150507_21_1/,lv220396127?1431002987:30:41fa9d6b5235fec5"
+ticket: "48298698:lv220396127:0:1431002987:7c04429cb1e15700"
+url: "rtmp://nleu22.live.nicovideo.jp:1935/liveedge/live_150507_21_1"
+lv220396127
+
+
+~/local/rtmpdump/rtmpdump -o out.flv -vr "rtmp://nleu22.live.nicovideo.jp:1935/liveedge/live_150507_21_1/lv220396127" -C S:"48298698:lv220396127:0:1431002987:7c04429cb1e15700" -N "rtmp://nlpoca154.live.nicovideo.jp:1935/publicorigin/150507_21_1/,lv220396127?1431002987:30:41fa9d6b5235fec5" -p "http://live.nicovideo.jp/watch/lv220396127"
+
+
+contents: "rtmp://nlpoca159.live.nicovideo.jp:1935/publicorigin/150507_21_1/,lv220401928?1431003851:30:17263797c85a9639"
+ticket: "48298698:lv220401928:0:1431003851:8804a953321c7e86"
+url: "rtmp://nleu21.live.nicovideo.jp:1935/liveedge/live_150507_22_1"
+
+"lv220401928"
+
+~/local/rtmpdump/rtmpdump -o out.flv -vr "rtmp://nleu21.live.nicovideo.jp:1935/liveedge/live_150507_22_1/lv220401928" -C "S:48298698:lv220401928:0:1431003851:8804a953321c7e86" -N "rtmp://nlpoca159.live.nicovideo.jp:1935/publicorigin/150507_21_1/,lv220401928?1431003851:30:17263797c85a9639"
+###
