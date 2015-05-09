@@ -9,15 +9,15 @@ remote = require 'remote'
 dialog = remote.require 'dialog'
 # mime = require 'mime'
 
-isCodecSupported = (codec) ->
-  # codec support: http://www.chromium.org/audio-video
-  supportedCodecs = [
-    'audio/ogg', 'application/ogg', 'video/ogg',
-    'video/webm', 'audio/webm',
-    'audio/wav', 'audio/x-wav'
-  ]
-  codecSupported = supportedCodecs.filter (c) -> codec == c
-  codecSupported.length > 0
+# isCodecSupported = (codec) ->
+#   # codec support: http://www.chromium.org/audio-video
+#   supportedCodecs = [
+#     'audio/ogg', 'application/ogg', 'video/ogg',
+#     'video/webm', 'audio/webm',
+#     'audio/wav', 'audio/x-wav'
+#   ]
+#   codecSupported = supportedCodecs.filter (c) -> codec == c
+#   codecSupported.length > 0
 
 module.exports =
 class VideoPlayerView extends View
@@ -26,14 +26,12 @@ class VideoPlayerView extends View
       @video autoplay: true
 
   initialize: (serializeState) ->
-    atom.workspaceView.command "video-player:play", => @play()
-    atom.workspaceView.command "video-player:stop", => @stop()
-    atom.workspaceView.command "video-player:toggle-back-forth", => @toggleBackForth()
-    atom.workspaceView.command "video-player:toggle-control", => @toggleControl()
-    atom.workspaceView.command "video-player:reload-source", => @reloadSrc()
 
-  # Returns an object that can be retrieved when package is activated
-  serialize: ->
+    # atom.workspaceView.command "video-player:play", => @play()
+    # atom.workspaceView.command "video-player:stop", => @stop()
+    # atom.workspaceView.command "video-player:toggle-back-forth", => @toggleBackForth()
+    # atom.workspaceView.command "video-player:toggle-control", => @toggleControl()
+    # atom.workspaceView.command "video-player:reload-source", => @reloadSrc()
 
   # Tear down any state and detach
   destroy: ->

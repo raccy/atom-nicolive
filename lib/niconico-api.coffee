@@ -34,6 +34,9 @@ class NiconicoApi
           'Niconico for Atom 0.0.0 / https://github.com/raccy/niconico'
     @liveHeartbeat = null
 
+  destroy: ->
+    # なんかは破棄する物ある？
+
   setCookieStoreFile: (@cookieStoreFile) ->
     # TODO: 今は無理
 

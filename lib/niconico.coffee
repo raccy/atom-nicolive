@@ -44,28 +44,34 @@ module.exports = Niconico =
 
     @subscriptions = {}
 
-    @subscriptions.commands = new CompositeDisposable
-    @subscriptions.commands.add atom.commands.add 'atom-workspace',
+    @subscriptions = new CompositeDisposable
+    @subscriptions.add atom.commands.add 'atom-workspace',
       'niconico:show': =>
         @show()
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'niconico:stop': =>
+        @stop()
 
-    @subscriptions.observe = {}
-    @subscriptions.observe.cookieStoreFile =
-      atom.config.observe 'niconico.cookieStoreFile', (newValue) =>
-        @niconicoView.setCookieStoreFile(newValue)
-    @vlcPathObserveSubscription =
-      atom.config.observe 'niconico.vlcPath', (newValue) =>
-        @rtmpPlayer.setVlcPath(newValue)
-    @rtmpdumpPathObserveSubscription =
-      atom.config.observe 'niconico.rtmpdumpPath', (newValue) =>
-        @rtmpPlayer.setRtmpdumpPath(newValue)
+    @subscriptions.add atom.config.observe 'niconico.cookieStoreFile',
+      (newValue) =>
+        @niconicoView.setCookieStoreFile newValue
+    @subscriptions.add atom.config.observe 'niconico.vlcPath',
+      (newValue) =>
+        @rtmpPlayer.setVlcPath newValue
+    @subscriptions.add atom.config.observe 'niconico.rtmpdumpPath',
+      (newValue) =>
+        @rtmpPlayer.setRtmpdumpPath newValue
 
   show: ->
+    # TODO: 2回呼び出されるとおかしくなる。
     atom.workspace.getActivePane().splitRight().addItem @niconicoView
     @niconicoView.render()
 
+  stop: ->
+    @rtmpPlayer.stop()
+
   deactivate: ->
-    @disposeSubscriptions @subscriptions
+    @subscriptions.dispose()
     @niconicoView.destroy()
     @rtmpPlayer.destroy()
 

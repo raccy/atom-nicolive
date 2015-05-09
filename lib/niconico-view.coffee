@@ -59,12 +59,12 @@ class NiconicoView extends ScrollView
   detached: ->
     console.log "detached! NiconicoView"
 
-
   # Returns an object that can be retrieved when package is activated
   serialize: ->
 
   # Tear down any state and detach
   destroy: ->
+    @niconicoApi.destroy()
     # @element.remove()
 
   getTitle: ->
@@ -169,11 +169,11 @@ class NiconicoView extends ScrollView
           @showAlert err
         else
           console.log data
-          rtmpdumpCmd = "~/local/rtmpdump/rtmpdump -o out.flv " +
-            "-vr '#{data.rtmp.url}/#{data.stream.id}' " +
-            "-C 'S:#{data.rtmp.ticket}' " +
-            "-N '#{data.rtmp.contents}'"
-          console.log rtmpdumpCmd
+          rtmpdumpArgs =
+            vr: data.rtmp.url + "/" + data.stream.id
+            C: "S:" + data.rtmp.ticket
+            N: data.rtmp.contents
+          @rtmpPlayer.play(rtmpdumpArgs)
     else
       @showAlert '未実装です。'
 
