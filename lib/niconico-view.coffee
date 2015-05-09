@@ -41,9 +41,14 @@ class NiconicoView extends ScrollView
       @div outlet: 'playPanel', style: 'display:none'
       @div outlet: 'processPanel', style: 'display:none', class: 'overlayout'
 
-  constructor: (cookieStoreFile) ->
+  constructor: ({@rtmpPlayer, cookieStoreFile}) ->
     super
+
     @niconicoApi = new NiconicoApi(cookieStoreFile)
+
+  setCookieStoreFile: (cookieStoreFile) ->
+    @niconicoApi.setCookieStoreFile(cookieStoreFile)
+    # TODO: セッション切れた後の処理をしないと
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -66,7 +71,8 @@ class NiconicoView extends ScrollView
         else
           @showLogin()
       else
-        @setAlert err
+        @showAlert err
+        @showLogin()
 
   # ニコニコ動画にログイン
   showLogin: ->
@@ -120,18 +126,18 @@ class NiconicoView extends ScrollView
       @showAlert 'パスワードを入力して下さい。'
       return
     @startProcess 'ログイン中です・・・'
-    @niconicoApi.login @loginMail.val(), @loginPassword.val(), (success, err) =>
+    @niconicoApi.login @loginMail.val(), @loginPassword.val(), (err, data) =>
       @stopProcess()
-      if success
+      if err
+        # パスワードだけ初期化
+        @loginPassword.val('')
+        @showAlert err
+      else
         @loginPanel.hide()
         @loginMail.val('')
         @loginPassword.val('')
         # 再度rederからやり直す
         @render()
-      else
-        # パスワードだけ初期化
-        @loginPassword.val('')
-        @showAlert err
 
   clickLogout: (event, element) ->
     @startProcess 'ログアウト中です・・・'
@@ -153,6 +159,11 @@ class NiconicoView extends ScrollView
           @showAlert err
         else
           console.log data
+          rtmpdumpCmd = "~/local/rtmpdump/rtmpdump -o out.flv " +
+            "-vr '#{data.rtmp.url}/#{data.stream.id}' " +
+            "-C 'S:#{data.rtmp.ticket}' " +
+            "-N '#{data.rtmp.contents}'"
+          console.log rtmpdumpCmd
     else
       @showAlert '未実装です。'
 

@@ -6,59 +6,75 @@ cheerio = require 'cheerio'
 # ニコニコ動画関係のAPI
 module.exports =
 class NiconicoApi
-  @URI: {
+  @URI:
+    top: 'http://www.nicovideo.jp/'
     login: 'https://secure.nicovideo.jp/secure/login?site=niconico'
     logout: 'https://secure.nicovideo.jp/secure/logout'
-    my: {
+    my:
       top: 'http://www.nicovideo.jp/my/top'
       community: 'http://www.nicovideo.jp/my/community'
       channel: 'http://www.nicovideo.jp/my/channel'
       live: 'http://www.nicovideo.jp/my/live'
       mylist: 'http://www.nicovideo.jp/my/mylist'
-    }
-    live: {
+    live:
       status: 'http://live.nicovideo.jp/api/getplayerstatus/{id}'
       heartbeat: 'http://live.nicovideo.jp/api/heartbeat?v={id}'
-    }
-  }
 
   # https://secure.nicovideo.jp/secure/login?show_button_twitter=1&site=niconico&show_button_facebook=1
 
-  constructor: (cookieStoreFile) ->
+  constructor: (@cookieStoreFile) ->
     # すでに存在しないとエラーになるらしい。けど、修正バージョンのブランチ使う。
     # unless fs.existsSync(cookieStoreFile)
     #   fs.closeSync(fs.openSync(cookieStoreFile, 'w'))
-    @requestJar = request.jar(new FileCookieStore(cookieStoreFile))
-    @request = request.defaults {
+    console.log @cookieStoreFile
+    @requestJar = request.jar(new FileCookieStore(@cookieStoreFile))
+    @request = request.defaults
       jar: @requestJar
       followRedirect: false
-      headers: {
-        'User-Agent': 'Niconico for Atom 0.0.0 / https://github.com/raccy/niconico'
-      }
-    }
+      headers:
+        'User-Agent':
+          'Niconico for Atom 0.0.0 / https://github.com/raccy/niconico'
     @liveHeartbeat = null
+
+  setCookieStoreFile: (@cookieStoreFile) ->
+    # TODO: 今は無理
+
+  # callback(err, response, body)
+  requestGet: (url, callback) ->
+    console.log ['Getリクエスト', url]
+    @request.get url, (err, response, body) ->
+      console.log ['Getレスポンス', err, response, body]
+      callback(err, response, body)
+
+  requestPost: (url, formData, callback) ->
+    console.log ['Postリクエスト', url, formData]
+    @request.post url, {form: formData}, (err, response, body) ->
+      console.log ['Postレスポンス', err, response, body]
+      callback err, response, body
 
   # ログインする。
   # ログインした情報をcallbackになげる。
-  # callback(success, err)
+  # callback(err, data)
   login: (mail, password, callback) ->
-    formData = {
-      mail_tel: mail,
-      password: password,
-    }
-    @request.post NiconicoApi.URI.login, {form: formData}, (err, response, body) ->
-      if !err and response.statusCode == 302
+    formData =
+      mail_tel: mail
+      password: password
+    @requestPost NiconicoApi.URI.login, formData, (err, response, body) ->
+      if err
+        callback err, null
+      else if response.statusCode == 302
         if response.headers.location == 'http://www.nicovideo.jp/'
-          callback(true, null)
+          callback null, true
         else
-          callback(false, 'メールアドレスまたはパスワードが間違っています。')
+          callback 'メールアドレスまたはパスワードが間違っています。', null
       else
-        callback(false, err? || '不明なレスポンスが返されました。')
+        callback '不明なレスポンスが返されました。', null
 
   # ログアウトする。
   logout: (callback) ->
     @request.get NiconicoApi.URI.logout, ->
       callback()
+      # TODO
 
   # トップをとる
   # classback(err, {userId, userName})
