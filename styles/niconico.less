@@ -8,3 +8,27 @@
   background-color: #FFF;
   color: #000;
 }
+
+// Original code by video-player https://github.com/tyage/video-player
+// File: styles/video-player.less
+// Licensed under the MIT License Copyright (c) 2014 tyage
+// See https://github.com/tyage/video-player/blob/master/LICENSE.md
+.item-views {
+  > * {
+    z-index: 2;
+    opacity: 0.8;
+  }
+  > .rtmp-player {
+    z-index: 0;
+    opacity: 1;
+    display: block !important;
+
+    &.front {
+      z-index: 3;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

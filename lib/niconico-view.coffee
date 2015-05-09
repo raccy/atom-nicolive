@@ -169,10 +169,12 @@ class NiconicoView extends ScrollView
           @showAlert err
         else
           console.log data
-          rtmpdumpArgs =
-            vr: data.rtmp.url + "/" + data.stream.id
-            C: "S:" + data.rtmp.ticket
-            N: data.rtmp.contents
+          rtmpdumpArgs = [
+            '-v',
+            '-r', "#{data.rtmp.url}/#{data.stream.id}",
+            '-C', "S:#{data.rtmp.ticket}",
+            '-N',  data.rtmp.contents,
+          ]
           @rtmpPlayer.play(rtmpdumpArgs)
     else
       @showAlert '未実装です。'

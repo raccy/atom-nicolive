@@ -4,10 +4,11 @@
 # See https://github.com/tyage/video-player/blob/master/LICENSE.md
 
 {View} = require 'atom-space-pen-views'
-vlc = require './vlc'
+VLC = require './vlc'
 remote = require 'remote'
 dialog = remote.require 'dialog'
 # mime = require 'mime'
+{spawn} = require 'child_process'
 
 # isCodecSupported = (codec) ->
 #   # codec support: http://www.chromium.org/audio-video
@@ -20,13 +21,14 @@ dialog = remote.require 'dialog'
 #   codecSupported.length > 0
 
 module.exports =
-class VideoPlayerView extends View
+class RtmpPlayerView extends View
   @content: ->
     @div class: 'rtmp-player', =>
-      @video autoplay: true
+      @video outlet: 'rtmpVideo', autoplay: true
 
-  initialize: (serializeState) ->
-
+  initialize: ({@vlcPath, @rtmpdumpPath}) ->
+    @vlc = new VLC(@vlcPath)
+    @playing = false
     # atom.workspaceView.command "video-player:play", => @play()
     # atom.workspaceView.command "video-player:stop", => @stop()
     # atom.workspaceView.command "video-player:toggle-back-forth", => @toggleBackForth()
@@ -35,65 +37,112 @@ class VideoPlayerView extends View
 
   # Tear down any state and detach
   destroy: ->
-    vlc.kill()
-    @detach()
+    @stop()
+
+  setVlcPath: (@vlcPath) ->
+    @vlc.path = @vlcPath
+
+  setRtmpdumpPath: (@rtmpdumpPath) ->
+
+  isPlay: ->
+    @playing
 
   stop: ->
-    vlc.kill()
+    console.log '停止しました。'
+    if (@rtmpdumpProcess != null)
+      @rtmpdumpProcess.kill 'SIGKILL'
+      @rtmpdumpProcess = null
+    @vlc.kill()
     @detach()
+    @playing = false
 
-  play: ->
-    self = this
-    properties = ['openFile', 'multiSelections']
-    dialog.showOpenDialog title: 'Open', properties: properties, (files) ->
-      if files != undefined
-        self._play files
+  play: (rtmpdumpArgs) ->
+    if @playing
+      @stop()
+    @playing = true
+    #   self = this
+    #   properties = ['openFile', 'multiSelections']
+    #   dialog.showOpenDialog title: 'Open', properties: properties, (files) ->
+    #     if files != undefined
+    #       self._play files
+    #
+    # _play: (files) ->
 
-  _play: (files) ->
-    vlc.kill()
 
-    itemViews = atom.workspaceView.find('.pane.active .item-views')
-    itemViews.find('.video-player').remove()
-    itemViews.append this
-    video = atom.workspaceView.find '.video-player video'
+    # @vlc.kill()
 
-    codecUnsupported = files.filter (file) ->
-      mimeType = mime.lookup file
-      !isCodecSupported mimeType
-    if codecUnsupported.length > 0
-      # when play unsupported file, try to use VLC
-      this._playWithVlc video, files
-    else
-      this._playWithHtml5Video video, files
+    targetPane = null
+    for pane in atom.workspace.getPanes()
+      console.log pane
+      for item in pane.getItems()
+        console.log item
+        itemDom = atom.views.getView(item)
+        console.log itemDom
+        if !targetPane and itemDom.tagName == 'atom-text-edtior'
+          targetPane = pane
+        else if 'rtmp-player' in itemDom.classList
+          pane.destroyItem item
+    if targetPane
+      console.log '再生するためのエディタ領域がないです。'
+      return
 
-  _playWithVlc: (video, files) ->
-    self = this
-    streamServer = 'http://localhost:' + vlc.port
-    video.attr 'src', streamServer
-    vlc.streaming files, (data) -> self._reloadSrc video
-    video.on 'ended', () -> self._reloadSrc video
-    video.on 'suspend', () -> self._reloadSrc video
+    #   pane.addItem @
+    #
+    # itemViews = atom.workspaceView.find('.pane.active .item-views')
+    # itemViews.find('.rtmp-player').remove()
+    # itemViews.append @
+    # addItem @
+    # video = atom.workspaceView.find '.rtmp-player video'
 
-  _playWithHtml5Video: (video, files) ->
-    counter = 0
-    video.attr 'src', files[counter]
-    video.on 'ended', () ->
-      ++counter
-      if (counter < files.length)
-        video.attr 'src', files[counter]
+    # codecUnsupported = files.filter (file) ->
+    #   mimeType = mime.lookup file
+    #   !isCodecSupported mimeType
+    # if codecUnsupported.length > 0
+    #   # when play unsupported file, try to use VLC
+    #   this._playWithVlc video, files
+    # else
+    #   this._playWithHtml5Video video, files
 
-  _reloadSrc: (video) ->
-    src = video.attr 'src'
-    video.attr 'src', src
+    #_playWithVlc: (video, files) ->
+    # self = this
 
-  reloadSrc: ->
-    video = atom.workspaceView.find '.video-player video'
-    this._reloadSrc video
+    @rtmpdumpProcess = spawn @rtmpdumpPath, rtmpdumpArgs, {stdio: ['ignore', 'pipe', 'pipe']}
+    @rtmpdumpProcess.on 'exit', () =>
+      console.log 'streaming finished'
+      @stop
+    @rtmpdumpProcess.stderr.on 'data', (data) =>
+      console.log data.toString()
+      @stop
 
-  toggleBackForth: ->
-    jQuery(this).toggleClass 'front'
+    streamServer = "http://localhost:#{@vlc.port}"
+    @rtmpVideo.attr 'src', streamServer
+    @vlc.streaming @rtmpdumpProcess.stdout, (data) =>
+      @stop
+    @rtmpVideo.on 'ended', () =>
+      @stop
+    @rtmpVideo.on 'suspend', () =>
+      @stop
 
-  toggleControl: ->
-    video = jQuery(this).find 'video'
-    controls = video.attr 'controls'
-    video.attr 'controls', !controls
+  # _playWithHtml5Video: (video, files) ->
+  #   counter = 0
+  #   video.attr 'src', files[counter]
+  #   video.on 'ended', () ->
+  #     ++counter
+  #     if (counter < files.length)
+  #       video.attr 'src', files[counter]
+
+  # _reloadSrc: (video) ->
+  #   src = video.attr 'src'
+  #   video.attr 'src', src
+  #
+  # reloadSrc: ->
+  #   video = atom.workspaceView.find '.video-player video'
+  #   this._reloadSrc video
+
+  # toggleBackForth: ->
+  #   jQuery(this).toggleClass 'front'
+  #
+  # toggleControl: ->
+  #   video = jQuery(this).find 'video'
+  #   controls = video.attr 'controls'
+  #   video.attr 'controls', !controls
