@@ -4,7 +4,7 @@
 # See https://github.com/tyage/video-player/blob/master/LICENSE.md
 
 {spawn} = require 'child_process'
-unorm = require 'unorm'
+# unorm = require 'unorm'
 
 port = 9530
 vlcProcess = null
@@ -17,7 +17,7 @@ kill = () ->
 streaming = (inputs, errorCallback) ->
   # XXX mac os only
   vlc = atom.config.get('video-player.vlcPath')
-  files = inputs.map unorm.nfc
+  # files = inputs.map unorm.nfc
   args = files.concat ['--sout', '#transcode{vcodec=theo,vb=800,scale=1,acodec=vorb,ab=128,channels=2,
     samplerate=44100}:http{mux=ogg,dst=:' + port + '}', '--sout-keep']
   vlcProcess = spawn vlc, args

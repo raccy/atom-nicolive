@@ -1,11 +1,10 @@
-
+RtmpPlayerView = require './rtmp-player-view'
 
 module.exports =
 class RtmpPlayer
   constructor: ({@vlcPath, @rtmpdumpPath}) ->
 
   destroy: ->
-    @vlcPathObserveSubscription.dispose()
 
   setVlcPath: (@vlcPath) ->
 

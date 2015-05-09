@@ -20,8 +20,6 @@ class NiconicoApi
       status: 'http://live.nicovideo.jp/api/getplayerstatus/{id}'
       heartbeat: 'http://live.nicovideo.jp/api/heartbeat?v={id}'
 
-  # https://secure.nicovideo.jp/secure/login?show_button_twitter=1&site=niconico&show_button_facebook=1
-
   constructor: (@cookieStoreFile) ->
     # すでに存在しないとエラーになるらしい。けど、修正バージョンのブランチ使う。
     # unless fs.existsSync(cookieStoreFile)

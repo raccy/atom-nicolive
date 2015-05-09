@@ -41,14 +41,24 @@ class NiconicoView extends ScrollView
       @div outlet: 'playPanel', style: 'display:none'
       @div outlet: 'processPanel', style: 'display:none', class: 'overlayout'
 
-  constructor: ({@rtmpPlayer, cookieStoreFile}) ->
-    super
-
-    @niconicoApi = new NiconicoApi(cookieStoreFile)
+  # constructor: ({@rtmpPlayer, cookieStoreFile}) ->
+  #   super
+  #   @niconicoApi = new NiconicoApi(cookieStoreFile)
+  #   console.log "constructor! NiconicoView"
 
   setCookieStoreFile: (cookieStoreFile) ->
     @niconicoApi.setCookieStoreFile(cookieStoreFile)
     # TODO: セッション切れた後の処理をしないと
+
+  initialize: ({@rtmpPlayer, cookieStoreFile}) ->
+    @niconicoApi = new NiconicoApi(cookieStoreFile)
+
+  attached: ->
+    console.log "attached! NiconicoView"
+
+  detached: ->
+    console.log "detached! NiconicoView"
+
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->

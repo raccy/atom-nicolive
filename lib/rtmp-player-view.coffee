@@ -3,11 +3,11 @@
 # Licensed under the MIT License Copyright (c) 2014 tyage
 # See https://github.com/tyage/video-player/blob/master/LICENSE.md
 
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
 vlc = require './vlc'
 remote = require 'remote'
 dialog = remote.require 'dialog'
-mime = require 'mime'
+# mime = require 'mime'
 
 isCodecSupported = (codec) ->
   # codec support: http://www.chromium.org/audio-video
@@ -22,7 +22,7 @@ isCodecSupported = (codec) ->
 module.exports =
 class VideoPlayerView extends View
   @content: ->
-    @div class: 'video-player', =>
+    @div class: 'rtmp-player', =>
       @video autoplay: true
 
   initialize: (serializeState) ->

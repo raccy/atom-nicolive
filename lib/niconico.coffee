@@ -3,7 +3,7 @@ NiconicoView = require './niconico-view'
 path = require 'path'
 RtmpPlayer = require './rtmp-player'
 
-module.exports = Nicolive =
+module.exports = Niconico =
   niconicoView: null
   subscriptions: null
 
