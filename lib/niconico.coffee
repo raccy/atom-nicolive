@@ -51,6 +51,9 @@ module.exports = Niconico =
     @subscriptions.add atom.commands.add 'atom-workspace',
       'niconico:stop': =>
         @stop()
+    @subscriptions.add atom.commands.add 'atom-workspace',
+      'niconico:reload': =>
+        @reload()
 
     @subscriptions.add atom.config.observe 'niconico.cookieStoreFile',
       (newValue) =>
@@ -69,6 +72,9 @@ module.exports = Niconico =
 
   stop: ->
     @rtmpPlayer.stop()
+
+  reload: ->
+    @rtmpPlayer.reload()
 
   deactivate: ->
     @subscriptions.dispose()

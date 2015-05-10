@@ -10,5 +10,6 @@
 'atom-workspace':
   'ctrl-cmd-n': 'niconico:show'
   'ctrl-cmd-s': 'niconico:stop'
+  'ctrl-cmd-r': 'niconico:reload'
 '.niconico-view form':
   'tab': 'native!'

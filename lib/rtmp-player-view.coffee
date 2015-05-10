@@ -3,7 +3,7 @@
 # Licensed under the MIT License Copyright (c) 2014 tyage
 # See https://github.com/tyage/video-player/blob/master/LICENSE.md
 
-{View} = require 'atom-space-pen-views'
+{View, $} = require 'atom-space-pen-views'
 VLC = require './vlc'
 remote = require 'remote'
 dialog = remote.require 'dialog'
@@ -76,17 +76,20 @@ class RtmpPlayerView extends View
       console.log pane
       for item in pane.getItems()
         console.log item
-        itemDom = atom.views.getView(item)
+        itemDom = $(atom.views.getView(item))[0]
         console.log itemDom
-        if !targetPane and itemDom.tagName == 'atom-text-edtior'
+        console.log itemDom.tagName
+        console.log itemDom.classList
+        if !targetPane? and itemDom.tagName == 'ATOM-TEXT-EDITOR'
           targetPane = pane
         else if 'rtmp-player' in itemDom.classList
           pane.destroyItem item
-    if targetPane
+    unless targetPane?
       console.log '再生するためのエディタ領域がないです。'
       return
+    $(atom.views.getView(targetPane)).find('.item-views').append @
+    # .addItem @
 
-    #   pane.addItem @
     #
     # itemViews = atom.workspaceView.find('.pane.active .item-views')
     # itemViews.find('.rtmp-player').remove()
@@ -112,16 +115,19 @@ class RtmpPlayerView extends View
       @stop
     @rtmpdumpProcess.stderr.on 'data', (data) =>
       console.log data.toString()
-      @stop
+      # @stop
 
-    streamServer = "http://localhost:#{@vlc.port}"
-    @rtmpVideo.attr 'src', streamServer
     @vlc.streaming @rtmpdumpProcess.stdout, (data) =>
-      @stop
+      # @stop
     @rtmpVideo.on 'ended', () =>
       @stop
     @rtmpVideo.on 'suspend', () =>
       @stop
+
+    streamServer = "http://localhost:#{@vlc.port}"
+    @rtmpVideo.attr 'src', streamServer
+
+
 
   # _playWithHtml5Video: (video, files) ->
   #   counter = 0
@@ -135,8 +141,12 @@ class RtmpPlayerView extends View
   #   src = video.attr 'src'
   #   video.attr 'src', src
   #
-  # reloadSrc: ->
+  reload: ->
+    streamServer = @rtmpVideo.attr 'src'
+    @rtmpVideo.attr 'src', streamServer
   #   video = atom.workspaceView.find '.video-player video'
+  # #   src = video.attr 'src'
+  # #   video.attr 'src', src
   #   this._reloadSrc video
 
   # toggleBackForth: ->

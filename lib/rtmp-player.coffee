@@ -26,3 +26,7 @@ class RtmpPlayer
   stop: ->
     console.log '配信停止'
     @rtmpPlayerView.stop()
+
+  reload: ->
+    console.log 'リロード'
+    @rtmpPlayerView.reload()
