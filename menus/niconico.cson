@@ -9,6 +9,14 @@
           'label': '表示'
           'command': 'niconico:show'
         }
+        {
+          'label': '停止'
+          'command': 'niconico:stop'
+        }
+        {
+          'label': 'リロード'
+          'command': 'niconico:reload'
+        }
       ]
     ]
   }

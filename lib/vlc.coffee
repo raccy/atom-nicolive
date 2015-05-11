@@ -17,7 +17,7 @@ class VLC
     @vlcProcess = null
 
   kill: ->
-    if (@vlcProcess != null)
+    if @vlcProcess?
       @vlcProcess.kill 'SIGKILL'
       @vlcProcess = null
 
@@ -28,10 +28,28 @@ class VLC
     args = [
       '-'
       '--sout'
-      "\#transcode{vcodec=theo,vb=800,scale=1,acodec=vorb,ab=128,channels=2,
+      "\#transcode{vcodec=theo,vb=320,scale=1,acodec=vorb,ab=64,channels=2,
       samplerate=44100}:http{mux=ogg,dst=:#{@port}}"
       '--sout-keep'
+      '-I'
+      'dummy'
     ]
+    # args = [
+    #   '-',
+    #   '--sout-transcode-vcodec', 'theo',
+    #   '--sout-transcode-vb', '800',
+    #   '--sout-transcode-scale', '1',
+    #   '--sout-transcode-acodec', 'vorb',
+    #   '--sout-transcode-ab', '128',
+    #   '--sout-transcode-channels', '2',
+    #   '--sout-transcode-samplerate', '44100',
+    #   '--sout-standard-access', 'http',
+    #   '--sout-standard-mux', 'ogg',
+    #   '--sout-standard-dst', "localhost:#{@port}",
+    #   '--sout-keep',
+    #   '--intf', 'dummy',
+    # ]
+    console.log args
     @vlcProcess = spawn @path, args, {stdio: ['pipe', 'ignore', 'pipe']}
     readablePipe.pipe(@vlcProcess.stdin)
     @vlcProcess.on 'exit', () ->

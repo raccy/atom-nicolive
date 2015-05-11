@@ -18,6 +18,11 @@ Atomでコーディング中もニコ生の放送が閲覧可能に！
 * [x] とりあえずログインできるようにする。
 * [ ] 生放送を閲覧する。
     rtmpdump-nico-live | VLC | (TCP/IP) | Atom (chromium)
+    * [x] ユーザー生放送
+    * [ ] コミュ指定
+    * [ ] 公式
+    * [ ] チャンネル
+    * [ ] タイムシフトを閲覧する。
 * [ ] コメントを閲覧する。
 * [ ] コメントを書き込む。
 * [ ] 動画を閲覧する。
@@ -28,4 +33,15 @@ Atomでコーディング中もニコ生の放送が閲覧可能に！
 
 問題点とか
 
-* 画面がちゃんとでないっす・・・
+* [ ] リロード「ctrl-cmd-r」しないとうまく画面が
+* [ ] 画像がでるの遅い
+* [ ] 停止するとエラーにナル
+
+    > events.js:141
+    > Hide Stack Trace
+    > Error: write EPIPE
+    >   at Object.exports._errnoException (util.js:734:11)
+    >   at exports._exceptionWithHostPort (util.js:757:20)
+    >   at WriteWrap.afterWrite (net.js:753:14)
+
+* [ ] NLEでの放送だと音声がとぎれるっぽい。

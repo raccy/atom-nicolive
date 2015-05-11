@@ -49,7 +49,7 @@ class RtmpPlayerView extends View
 
   stop: ->
     console.log '停止しました。'
-    if (@rtmpdumpProcess != null)
+    if @rtmpdumpProcess?
       @rtmpdumpProcess.kill 'SIGKILL'
       @rtmpdumpProcess = null
     @vlc.kill()
@@ -76,16 +76,19 @@ class RtmpPlayerView extends View
       console.log pane
       for item in pane.getItems()
         console.log item
-        itemDom = $(atom.views.getView(item))[0]
+        itemDom = $(atom.views.getView(item))
         console.log itemDom
-        console.log itemDom.tagName
-        console.log itemDom.classList
-        if !targetPane? and itemDom.tagName == 'ATOM-TEXT-EDITOR'
+        # console.log itemDom.find('atom-text-editor')[0]
+        # console.log itemDom.find('.item-views')[0]
+        # console.log itemDom.is ':visible'
+        if !targetPane? and
+            itemDom[0].tagName = 'ATOM-TEXT-EDITOR' and
+            itemDom.is ':visible'
           targetPane = pane
-        else if 'rtmp-player' in itemDom.classList
+        else if 'rtmp-player' in itemDom[0].classList
           pane.destroyItem item
     unless targetPane?
-      console.log '再生するためのエディタ領域がないです。'
+      console.log '再生するためのエディタ領域がみつからないです。'
       return
     $(atom.views.getView(targetPane)).find('.item-views').append @
     # .addItem @
@@ -119,15 +122,17 @@ class RtmpPlayerView extends View
 
     @vlc.streaming @rtmpdumpProcess.stdout, (data) =>
       # @stop
-    @rtmpVideo.on 'ended', () =>
+    @rtmpVideo.on 'ended', =>
       @stop
-    @rtmpVideo.on 'suspend', () =>
+    @rtmpVideo.on 'suspend', =>
       @stop
 
-    streamServer = "http://localhost:#{@vlc.port}"
-    @rtmpVideo.attr 'src', streamServer
 
-
+    # 1秒だけまってから
+    setTimeout =>
+      streamServer = "http://localhost:#{@vlc.port}"
+      @rtmpVideo.attr 'src', streamServer
+    , 1 * 1000
 
   # _playWithHtml5Video: (video, files) ->
   #   counter = 0
@@ -156,3 +161,5 @@ class RtmpPlayerView extends View
   #   video = jQuery(this).find 'video'
   #   controls = video.attr 'controls'
   #   video.attr 'controls', !controls
+
+  execProccess: (command, args) ->
