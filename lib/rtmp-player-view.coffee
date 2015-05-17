@@ -4,7 +4,7 @@
 # See https://github.com/tyage/video-player/blob/master/LICENSE.md
 
 {View, $} = require 'atom-space-pen-views'
-VLC = require './vlc'
+# VLC = require './vlc'
 remote = require 'remote'
 dialog = remote.require 'dialog'
 # mime = require 'mime'
@@ -27,8 +27,9 @@ class RtmpPlayerView extends View
       @video outlet: 'rtmpVideo', autoplay: true
 
   initialize: ({@vlcPath, @rtmpdumpPath}) ->
-    @vlc = new VLC(@vlcPath)
+    # @vlc = new VLC(@vlcPath)
     @playing = false
+    @port = 9531
     # atom.workspaceView.command "video-player:play", => @play()
     # atom.workspaceView.command "video-player:stop", => @stop()
     # atom.workspaceView.command "video-player:toggle-back-forth", => @toggleBackForth()
@@ -40,25 +41,17 @@ class RtmpPlayerView extends View
     @stop()
 
   setVlcPath: (@vlcPath) ->
-    @vlc.path = @vlcPath
+    # @vlc.path = @vlcPath
 
   setRtmpdumpPath: (@rtmpdumpPath) ->
 
   isPlay: ->
     @playing
 
-  stop: ->
-    console.log '停止しました。'
-    if @rtmpdumpProcess?
-      @rtmpdumpProcess.kill 'SIGKILL'
-      @rtmpdumpProcess = null
-    @vlc.kill()
-    @detach()
-    @playing = false
-
   play: (rtmpdumpArgs) ->
     if @playing
       @stop()
+    console.log '視聴を開始します。'
     @playing = true
     #   self = this
     #   properties = ['openFile', 'multiSelections']
@@ -73,11 +66,11 @@ class RtmpPlayerView extends View
 
     targetPane = null
     for pane in atom.workspace.getPanes()
-      console.log pane
+      # console.log pane
       for item in pane.getItems()
-        console.log item
+        # console.log item
         itemDom = $(atom.views.getView(item))
-        console.log itemDom
+        # console.log itemDom
         # console.log itemDom.find('atom-text-editor')[0]
         # console.log itemDom.find('.item-views')[0]
         # console.log itemDom.is ':visible'
@@ -111,26 +104,60 @@ class RtmpPlayerView extends View
 
     #_playWithVlc: (video, files) ->
     # self = this
+    vlcArgs = [
+      '-'
+      '--sout'
+      "\#transcode{vcodec=VP80,vb=800,scale=1,acodec=vorb,ab=128,channels=2," +
+        "samplerate=44100}:http{mux=ffmpeg{mux=webm},dst=:#{@port}}"
+      '--sout-keep'
+      # '--file-caching'
+      # '1000'
+      '-I'
+      'dummy'
+    ]
+    # rtmpdumpArgs = rtmpdumpArgs.concat(['-b', '1000', '-o', '-'])
+    rtmpdumpArgs = rtmpdumpArgs.concat(['-b', '1000'])
 
-    @rtmpdumpProcess = spawn @rtmpdumpPath, rtmpdumpArgs, {stdio: ['ignore', 'pipe', 'pipe']}
-    @rtmpdumpProcess.on 'exit', () =>
-      console.log 'streaming finished'
+      # '--file-caching'
+      # '5000'
+      # '--network-caching'
+      # '1000'
+      # "\#transcode{vcodec=theo,vb=800,scale=1,acodec=vorb,ab=128,channels=2," +
+      #   "samplerate=44100}:http{mux=ogg,dst=:#{@port}}"
+      # "\#transcode{vcodec=theo,vb=800,scale=1,acodec=vorb,ab=128,channels=2,
+      # samplerate=44100}:http{mux=ogg,dst=:#{@port}}"
+      # '--file-caching'
+      # '60000'
+      # '--network-caching'
+      # '60000'
+
+    @vlcProc = @execProc @vlcPath, vlcArgs, =>
+      @vlcProc = null
       @stop
-    @rtmpdumpProcess.stderr.on 'data', (data) =>
-      console.log data.toString()
-      # @stop
+    @rtmpdumpProc = @execProc @rtmpdumpPath, rtmpdumpArgs, =>
+      @rtmpdumpProc = null
+      @stop
+    @rtmpdumpProc.stdout.pipe @vlcProc.stdin
 
-    @vlc.streaming @rtmpdumpProcess.stdout, (data) =>
-      # @stop
+    # @rtmpdumpProc = spawn @rtmpdumpPath, rtmpdumpArgs, {stdio: ['ignore', 'pipe', 'pipe']}
+    # @rtmpdumpProc.on 'exit', () =>
+    #   console.log 'streaming finished'
+    #   @stop
+    # @rtmpdumpProc.stderr.on 'data', (data) =>
+    #   console.log data.toString()
+    #   # @stop
+
+    # @vlc.streaming @rtmpdumpProc.stdout, (data) =>
+    #   # @stop
+
     @rtmpVideo.on 'ended', =>
       @stop
-    @rtmpVideo.on 'suspend', =>
-      @stop
-
+    # @rtmpVideo.on 'suspend', =>
+    #   @stop
 
     # 1秒だけまってから
     setTimeout =>
-      streamServer = "http://localhost:#{@vlc.port}"
+      streamServer = "http://localhost:#{@port}"
       @rtmpVideo.attr 'src', streamServer
     , 1 * 1000
 
@@ -146,6 +173,29 @@ class RtmpPlayerView extends View
   #   src = video.attr 'src'
   #   video.attr 'src', src
   #
+
+  stop: (callback = null) ->
+    if @playing
+      @playing = false
+      console.log '視聴を停止します。'
+      @killProc @rtmpdumpProc, =>
+        @rtmpdumpProc = null
+        @killProc @vlcProc, =>
+          @vlcProc = null
+          if callback?
+            callback()
+      # if @rtmpdumpProc?
+      #   @rtmpdumpProc.kill 'SIGKILL'
+      #   @rtmpdumpProc = null
+      # @vlc.kill()
+      @rtmpVideo.attr 'src', ""
+      @detach()
+      return true
+    else
+      if callback?
+        callback()
+      return false
+
   reload: ->
     streamServer = @rtmpVideo.attr 'src'
     @rtmpVideo.attr 'src', streamServer
@@ -162,4 +212,34 @@ class RtmpPlayerView extends View
   #   controls = video.attr 'controls'
   #   video.attr 'controls', !controls
 
-  execProccess: (command, args) ->
+  # プロセスの実行
+  # 終了時にcallbackを呼び出します。
+  execProc: (command, args, exitCallback) ->
+    proc = spawn command, args
+    proc.on 'exit', (code, signal) ->
+      console.log "[#{command}] exit: #{code}/#{signal}"
+      exitCallback(code)
+    proc.on 'error', (error) ->
+      console.log "[#{command}] error: #{error}"
+    proc.stderr.on 'data', (data) ->
+      console.log "[#{command}] #{data}"
+    return proc
+
+  killProc: (proc, callback = null, killTimeout = 10) ->
+    if proc?
+      procKilled = false
+      proc.removeAllListeners('exit')
+      proc.on 'exit', (code, signal) ->
+        procKilled = true
+        if callback?
+          callback()
+      proc.kill()
+      setTimeout ->
+        unless procKilled
+          proc.kill 'SIGKILL'
+        proc.removeAllListeners()
+      , killTimeout * 1000
+      return true
+    else
+      callback()
+      return false
