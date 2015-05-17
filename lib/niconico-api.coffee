@@ -121,7 +121,8 @@ class NiconicoApi
           data.rtmp = {}
           data.rtmp.url = liveStatus('rtmp url').text()
           data.rtmp.ticket = liveStatus('rtmp ticket').text()
-          data.rtmp.contents = liveStatus('contents#main').text().replace(/^rtmp:rtmp:\/\//, 'rtmp://')
+          data.rtmp.contents = liveStatus('contents#main').text().
+            replace(/^rtmp:rtmp:\/\//, 'rtmp://')
           @startLiveHeartbeat(data.stream.id)
           callback(err, data)
         else

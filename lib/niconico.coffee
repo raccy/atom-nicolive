@@ -66,9 +66,12 @@ module.exports = Niconico =
         @rtmpPlayer.setRtmpdumpPath newValue
 
   show: ->
-    # TODO: 2回呼び出されるとおかしくなる。
-    atom.workspace.getActivePane().splitRight().addItem @niconicoView
-    @niconicoView.render()
+    # TODO: トグルにする？
+    if @niconicoView.isActive()
+      @niconicoView.focus()
+    else
+      atom.workspace.getActivePane().splitRight().addItem @niconicoView
+      @niconicoView.render()
 
   stop: ->
     @rtmpPlayer.stop()

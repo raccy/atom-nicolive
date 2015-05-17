@@ -1,5 +1,6 @@
 {$, $$$, ScrollView} = require 'atom-space-pen-views'
 NiconicoApi = require './niconico-api'
+NicovideCommentView = require './Niconico-comment-view'
 fs = require 'fs'
 
 module.exports =
@@ -11,7 +12,9 @@ class NiconicoView extends ScrollView
         @span outlet: 'userId', '-'
         @text ' '
         @span outlet: 'userName', '未ログイン'
-        @button outlet: 'logoutButton', click: 'clickLogout', style: 'display:none', 'ログアウト'
+        @button
+          outlet: 'logoutButton', click: 'clickLogout', style: 'display:none',
+          'ログアウト'
       @div outlet: 'alertPanel', style: 'display:none', class: 'alert'
       @div outlet: 'loginPanel', style: 'display:none', =>
         # @h2 'ニコニコ動画ログイン'
@@ -20,17 +23,23 @@ class NiconicoView extends ScrollView
             @legend 'ニコニコ動画ログイン'
             @div =>
               @label 'メールアドレス'
-              @input outlet: 'loginMail', name: 'mail_tel', type: 'text', placeholder: 'hoge@example.jp'
+              @input
+                outlet: 'loginMail', name: 'mail_tel', type: 'text',
+                placeholder: 'hoge@example.jp'
             @div =>
               @label 'パスワード'
-              @input outlet: 'loginPassword', name: 'password', type: 'password', placeholder: 'password'
+              @input
+                outlet: 'loginPassword', name: 'password', type: 'password',
+                placeholder: 'password'
             @div =>
               @button click: 'clickLogin', 'ログイン'
       @div outlet: 'menuPanel', style: 'display:none', =>
         @form =>
           @fieldset =>
             @legend 'クイック視聴'
-            @input outlet: 'quickMovie', name: 'quick_movie', type: 'text', placeholder: 'lv... / co... / sm...'
+            @input
+              outlet: 'quickMovie', name: 'quick_movie', type: 'text',
+              placeholder: 'lv... / co... / sm...'
             @button click: 'clickQuickPlay', '視聴'
         @div =>
           @h3 '生放送中一覧'
@@ -38,7 +47,11 @@ class NiconicoView extends ScrollView
             @li '現在放送中の番組はありません。'
         @p 'あとは、マイリスト一覧とか選択できるようにしたいっす。'
       @div outlet: 'mylistPanel', style: 'display:none'
-      @div outlet: 'playPanel', style: 'display:none'
+      @div outlet: 'playPanel', style: 'display:none', =>
+        @button click: 'closePlay', '閉じる'
+        @span class: 'movie-title'
+        @span class: 'owner-name'
+        @subview 'commentView', new NicovideCommentView()
       @div outlet: 'processPanel', style: 'display:none', class: 'overlayout'
 
   # constructor: ({@rtmpPlayer, cookieStoreFile}) ->
@@ -52,12 +65,13 @@ class NiconicoView extends ScrollView
 
   initialize: ({@rtmpPlayer, cookieStoreFile}) ->
     @niconicoApi = new NiconicoApi(cookieStoreFile)
+    @active = null
 
   attached: ->
-    console.log "attached! NiconicoView"
+    @active = true
 
   detached: ->
-    console.log "detached! NiconicoView"
+    @active = false
 
   # Returns an object that can be retrieved when package is activated
   serialize: ->
@@ -66,6 +80,9 @@ class NiconicoView extends ScrollView
   destroy: ->
     @niconicoApi.destroy()
     # @element.remove()
+
+  isActive: ->
+    @active
 
   getTitle: ->
     "ニコニコ動画"
@@ -155,6 +172,8 @@ class NiconicoView extends ScrollView
       @clearAll()
       @showLogin()
 
+
+
   clickQuickPlay: (event, element) ->
     @clearAlert()
     movieId = @quickMovie.val()
@@ -168,15 +187,28 @@ class NiconicoView extends ScrollView
         if err
           @showAlert err
         else
-          console.log data
-          rtmpdumpArgs = [
-            '-v',
-            '-r', "#{data.rtmp.url}/#{data.stream.id}",
-            '-C', "S:#{data.rtmp.ticket}",
-            '-N',  data.rtmp.contents,
-          ]
-          @rtmpPlayer.play(rtmpdumpArgs)
+          @playMovie data
     else
       @showAlert '未実装です。'
 
-  playMovie: (movieData) ->
+  playMovie: (data) ->
+    console.log data
+    rtmpdumpArgs = [
+      '-v',
+      '-r', "#{data.rtmp.url}/#{data.stream.id}",
+      '-C', "S:#{data.rtmp.ticket}",
+      '-N',  data.rtmp.contents,
+    ]
+    # @rtmpPlayer.play(rtmpdumpArgs)
+
+    @playPanel.find('.movie-title').text(data.stream.title)
+    @playPanel.find('.owner-name').text(data.stream.owner_name)
+
+    @commentView.start(data.comment)
+
+    @playPanel.show()
+
+  closePlay: ->
+    @rtmpPlayer.stop()
+    @commentView.stop()
+    @playPanel.hide()
