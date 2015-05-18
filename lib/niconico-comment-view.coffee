@@ -1,10 +1,10 @@
-{$, $$$, ScrollView} = require 'atom-space-pen-views'
+{$, $$$, View} = require 'atom-space-pen-views'
 net = require 'net'
 xmlbuilder = require 'xmlbuilder'
 cheerio = require 'cheerio'
 
 module.exports =
-class NiconicoCommentView extends ScrollView
+class NiconicoCommentView extends View
   @content: ->
     @div class: 'niconico-comment-view', tabindex: -1, =>
       @ul outlet: 'commentList'
@@ -25,7 +25,7 @@ class NiconicoCommentView extends ScrollView
       @setEncoding 'utf-8'
       doc = xmlbuilder.create 'thread'
       doc.att 'thread', commentData.thread
-      doc.att 'res_form', '-1000'
+      doc.att 'res_from', '-1000'
       doc.att 'version', '20061206'
       @write doc.toString(pretty: true)
       @write "\0"
@@ -39,8 +39,5 @@ class NiconicoCommentView extends ScrollView
 
   stop: ->
     @socket.end()
-
-    @addr = null
-    @port = null
-    @thread = null
+    @commentList.html ""
     @socket = null

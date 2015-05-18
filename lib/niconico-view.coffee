@@ -6,7 +6,11 @@ fs = require 'fs'
 module.exports =
 class NiconicoView extends ScrollView
   @content: ->
-    @div class: 'niconico-view native-key-bindings', tabindex: -1, =>
+    @div {
+      class: 'niconico-view native-key-bindings block'
+      overflow: 'auto'
+      tabindex: -1
+    }, =>
       @div outlet: 'topPanel', =>
         @text 'ID:'
         @span outlet: 'userId', '-'
