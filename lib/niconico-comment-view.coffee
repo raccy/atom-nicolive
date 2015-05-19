@@ -29,13 +29,22 @@ class NiconicoCommentView extends View
       doc.att 'version', '20061206'
       @write doc.toString(pretty: true)
       @write "\0"
+    remainData = ""
+    closeTag = '</chat>'
     @socket.on 'data', (data) =>
       console.log data
-      dataQuery = cheerio.load data
-      dataQuery('chat').each (index, element) =>
-        liElement = document.createElement('li')
-        $(liElement).text $(element).text()
-        @commentList.append liElement
+      data = remainData + data
+      endIndex = data.lastIndexOf(closeTag)
+      if endIndex < 0
+        remainData = data
+      else
+        remainData = data.slice(endIndex + closeTag.length)
+        data = data.slice(0, endIndex + closeTag.length)
+        dataQuery = cheerio.load data
+        dataQuery('chat').each (index, element) =>
+          liElement = document.createElement('li')
+          $(liElement).text $(element).text()
+          @commentList.prepend liElement
 
   stop: ->
     @socket.end()
